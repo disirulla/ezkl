@@ -38,6 +38,9 @@ pub enum Op {
     Tanh{
         scales: (usize, usize),
     },
+    Gelu{
+        scales: (usize, usize, bool),
+    },
 }
 
 impl fmt::Display for Op {
@@ -54,6 +57,9 @@ impl fmt::Display for Op {
             Op::Sigmoid { scales } => write!(f, "sigmoid  w/ scale: {}", scales.0),
             Op::Sqrt { scales } => write!(f, "sqrt  w/ scale: {}", scales.0),
             Op::Tanh { scales } => write!(f, "tanh  w/ scale: {}", scales.0),
+            Op::Gelu { scales, approximation } => {
+                write!(f, "gelu  w/ scale: {}, approximation: {}", scales.0, approximation)
+            }
         }
     }
 }
@@ -69,6 +75,7 @@ impl Op {
             Op::Sigmoid { scales } => sigmoid(&x, scales.0, scales.1),
             Op::Sqrt { scales } => sqrt(&x, scales.0, scales.1),
             Op::Tanh { scales } => tanh(&x, scales.0, scales.1),
+            Op::Gelu { scales, approximation } => gelu(&x, scales.0, scales.1, approximation),
         }
     }
 
@@ -80,7 +87,9 @@ impl Op {
             Op::PReLU { .. } => "PRELU",
             Op::Sigmoid { .. } => "SIGMOID",
             Op::Sqrt { .. } => "SQRT",
-            Op::Tanh { .. } => "TANH"
+            Op::Tanh { .. } => "TANH",
+            Op::Gelu { .. } => "GELU",
+
         }
     }
 

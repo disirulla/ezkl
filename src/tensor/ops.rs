@@ -2,6 +2,8 @@ use super::TensorError;
 use crate::tensor::{Tensor, TensorType};
 use itertools::Itertools;
 pub use std::ops::{Add, Div, Mul, Sub};
+use std::f32::consts::PI;
+use puruspe::erf;
 
 /// Matrix multiplies two 2D tensors (and adds an offset).
 /// # Arguments
@@ -802,6 +804,53 @@ pub mod nonlinearities {
             
         }
 
+        output
+    }
+
+    /// Tanh Helper functions for Gelu
+    pub fn tanh_for_gelu(x: f32) -> f32{
+        return (x.exp() - (1.0/x.exp()))/(x.exp() + (1.0/x.exp()));
+    }
+    /// Sqrt Helper functions for Gelu
+    pub fn sqrt_for_gelu(x: f32) -> f32 {
+        return x.sqrt();
+    }
+
+    /// TODO TODO TODO TODO ()
+    /// Elementwise applies Gelu activation to a tensor of integers.
+    /// # Arguments
+    ///
+    /// * `a` - Tensor
+    /// * `scale_input` - Single value
+    /// * `scale_output` - Single value
+    /// # Examples
+    /// ```
+    /// use ezkl_lib::tensor::Tensor;
+    /// use ezkl_lib::tensor::ops::nonlinearities::gelu;
+    /// let x = Tensor::<i128>::new(
+    ///     Some(&[4, 25, 8, 1, 1, 0]),
+    ///     &[2, 3],
+    /// ).unwrap();
+    /// let result = gelu(&x, 1, 1, true);
+    /// let expected = Tensor::<i128>::new(Some(&[0, 1, 0, 0, 0, 0]), &[2, 3]).unwrap(); todo()
+    /// assert_eq!(result, expected);
+    /// ```
+    pub fn gelu(a: &Tensor<i128>, scale_input: usize, scale_output: usize, approximation: bool )->Tensor<i128>{
+        let mut output = a.clone();
+    
+        for i in 0..a.len(){
+            let z = a[i].clone() as f32 / (scale_input as f32);
+            let mut op:f32;
+            if approximation{
+                op = 0.5 * z * (1.0 + tanh_for_gelu(sqrt_for_gelu(2.0 / PI) * (z + (0.044715 * f32::powf(z,3.0) ))));
+            }
+            else{
+                op = 0.5 * z * (1.0 +  erf((z / sqrt_for_gelu(2.0)) as f64) as f32);
+            } 
+            op = (scale_output as f32) * op;
+            output[i] = op as i128;
+            
+        }
         output
     }
 

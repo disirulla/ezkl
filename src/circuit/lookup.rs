@@ -38,6 +38,9 @@ pub enum Op {
     Tanh{
         scales: (usize, usize),
     },
+    Erf{
+        scales: (usize, usize),
+    },
 }
 
 impl fmt::Display for Op {
@@ -54,6 +57,8 @@ impl fmt::Display for Op {
             Op::Sigmoid { scales } => write!(f, "sigmoid  w/ scale: {}", scales.0),
             Op::Sqrt { scales } => write!(f, "sqrt  w/ scale: {}", scales.0),
             Op::Tanh { scales } => write!(f, "tanh  w/ scale: {}", scales.0),
+            Op::Erf { scales } => write!(f, "erf w/ scale: {}", scales.0),
+
         }
     }
 }
@@ -69,6 +74,7 @@ impl Op {
             Op::Sigmoid { scales } => sigmoid(&x, scales.0, scales.1),
             Op::Sqrt { scales } => sqrt(&x, scales.0, scales.1),
             Op::Tanh { scales } => tanh(&x, scales.0, scales.1),
+            Op::Erf { scales } => erffunc(&x, scales.0, scales.1),
         }
     }
 
@@ -80,7 +86,8 @@ impl Op {
             Op::PReLU { .. } => "PRELU",
             Op::Sigmoid { .. } => "SIGMOID",
             Op::Sqrt { .. } => "SQRT",
-            Op::Tanh { .. } => "TANH"
+            Op::Tanh { .. } => "TANH",
+            Op::Erf { .. } => "ERF",
         }
     }
 

@@ -72,7 +72,7 @@ impl OpKind {
             "Sigmoid" => OpKind::Lookup(LookupOp::Sigmoid { scales: (1, 1) }),
             "Sqrt" => OpKind::Lookup(LookupOp::Sqrt { scales: (1, 1) }),
             "Tanh" => OpKind::Lookup(LookupOp::Tanh {scales: (1, 1)}),
-            "Erf" => OpKind::Lookup(LookupOp::Erf {scales: (1, 1)} ),
+            "onnx.Erf" => OpKind::Lookup(LookupOp::Erf {scales: (1, 1)} ),
             "Div" => OpKind::Lookup(LookupOp::Div { denom: F32(1.0) }),
             "Const" => OpKind::Const,
             "Source" => OpKind::Input,
@@ -1195,9 +1195,9 @@ impl Node {
                         .unwrap()
                         .iter()
                         .map(|x| (*x as i128) as usize)
-                        .collect()
+                        .collect()     
                 };
-                // remove batch dim for now
+               
                 let out_dims = if dims[0] == 1 && dims.len() > 1 {
                     dims[1..].to_vec()
                 } else {

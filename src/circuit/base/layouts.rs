@@ -184,14 +184,31 @@ pub fn pairwise<F: FieldExt + TensorType>(
     offset: &mut usize,
     op: BaseOp,
 ) -> Result<ValTensor<F>, Box<dyn Error>> {
+
+    println!("made it to pairwise");
     if values.len() != config.inputs.len() {
         return Err(Box::new(CircuitError::DimMismatch(
             "accum dot layout".to_string(),
         )));
     }
 
+    let (mut lhs, mut rhs) = (values[0].clone(), values[1].clone());
+
+    // casts a 1D addition
+    if rhs.dims().len() == 1 && rhs.dims()[0] == 1 {
+        rhs.tile(lhs.dims().iter().product::<usize>())?;
+        rhs.reshape(lhs.dims())?;
+    }
+    // make 1D casting commutative
+    else if lhs.dims().len() == 1 && lhs.dims()[0] == 1 {
+        lhs.tile(rhs.dims().iter().product::<usize>())?;
+        lhs.reshape(rhs.dims())?;
+    }
+
+    println!("made it to cast 1d");
+
     let mut inputs = vec![];
-    for (i, input) in values.iter().enumerate() {
+    for (i, input) in [lhs, rhs].iter().enumerate() {
         let inp = utils::value_muxer(
             &config.inputs[i],
             &{
@@ -202,6 +219,8 @@ pub fn pairwise<F: FieldExt + TensorType>(
         );
         inputs.push(inp);
     }
+
+    println!("assigned inputs");
 
     // Now we can assign the dot product
     let op_result = match op {
@@ -217,6 +236,8 @@ pub fn pairwise<F: FieldExt + TensorType>(
 
     let output = config.output.assign(region, *offset, &op_result.into())?;
 
+    println!("assigned outputs");
+
     for i in 0..inputs[0].len() {
         let (x, y) = config.inputs[0].cartesian_coord(*offset + i);
         config
@@ -225,6 +246,8 @@ pub fn pairwise<F: FieldExt + TensorType>(
             .unwrap()
             .enable(region, y)?;
     }
+
+    println!("enabled constraints");
 
     *offset += output.len();
 
@@ -620,7 +643,7 @@ pub fn pow<F: FieldExt + TensorType>(
 pub fn rescale<F: FieldExt + TensorType>(
     config: &mut BaseConfig<F>,
     region: &mut Region<F>,
-    values: &[ValTensor<F>; 1],
+    values: &[ValTensor<F>],  // never make it [ValTensor<F>; 1], it leads to an error 
     scales: &[(usize, usize)],
     offset: &mut usize,
 ) -> Result<Vec<ValTensor<F>>, Box<dyn Error>> {

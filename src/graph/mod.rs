@@ -123,6 +123,7 @@ impl<F: FieldExt + TensorType> Circuit<F> for ModelCircuit<F> {
             .iter()
             .map(|i| ValTensor::from(<Tensor<i128> as Into<Tensor<Value<F>>>>::into(i.clone())))
             .collect::<Vec<ValTensor<F>>>();
+        println!("Printing input on Monday: {:?}", inputs);
         trace!("Setting output in synthesize");
         config
             .model

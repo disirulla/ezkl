@@ -509,7 +509,7 @@ impl<F: FieldExt + TensorType> BaseConfig<F> {
                 cp_values.push(v.clone());
             }
         }
-        trace!("laying out {}", op);
+        
         match op {
             Op::Dot => layouts::dot(self, region, cp_values[..].try_into()?, offset),
             Op::Sum => layouts::sum(self, region, cp_values[..].try_into()?, offset),
@@ -537,7 +537,7 @@ impl<F: FieldExt + TensorType> BaseConfig<F> {
                 offset,
             ),
             Op::Add => {
-                layouts::pairwise(self, region, cp_values[..].try_into()?, offset, BaseOp::Add)
+                layouts::pairwise(self, region, &[cp_values[0].clone(), cp_values[1].clone()], offset, BaseOp::Add)
             }
             Op::Sub => {
                 layouts::pairwise(self, region, cp_values[..].try_into()?, offset, BaseOp::Sub)
@@ -575,7 +575,6 @@ impl<F: FieldExt + TensorType> BaseConfig<F> {
                         "rescaled inputs".to_string(),
                     )));
                 }
-
                 let res =
                     &layouts::rescale(self, region, cp_values[..].try_into()?, &scale, offset)?[..];
                 self.layout(region, res, offset, *inner)

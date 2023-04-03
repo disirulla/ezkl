@@ -5,10 +5,9 @@ from torch import nn
 class Circuit(nn.Module):
     def __init__(self):
         super(Circuit, self).__init__()
-        self.layer = nn.GELU() # approximation = false in our case
 
     def forward(self, x):
-        return self.layer(x)
+        return torch.special.erf(x)
 
 def main():
     torch_model = Circuit()

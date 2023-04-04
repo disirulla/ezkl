@@ -509,6 +509,8 @@ impl<F: FieldExt + TensorType> BaseConfig<F> {
                 cp_values.push(v.clone());
             }
         }
+
+        trace!("laying out {}", op);
         
         match op {
             Op::Dot => layouts::dot(self, region, cp_values[..].try_into()?, offset),

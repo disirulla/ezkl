@@ -434,8 +434,8 @@ impl Model {
         vars: &mut ModelVars<F>,
         tables: &mut BTreeMap<Vec<LookupOp>, Rc<RefCell<LookupTable<F>>>>,
     ) -> Result<NodeConfig<F>, Box<dyn Error>> {
-        let input = &vars.advices[0];
-        let output = &vars.advices[1];
+        let input = &vars.advices[1];
+        let output = &vars.advices[2];
         let node_inputs = node.inputs.iter().map(|e| e.node).collect();
 
         let op = match &node.opkind {
